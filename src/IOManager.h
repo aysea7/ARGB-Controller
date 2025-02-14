@@ -52,6 +52,7 @@ public:
 
     void UpdateTriangleLevels();
     
+private:
     uint8_t AnalogReadTo8Bit(uint8_t pin);
 
 };

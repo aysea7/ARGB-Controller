@@ -5,6 +5,7 @@
 #include "Setup.h"
 #include "IOManager.h"
 #include "LEDTriangle.h"
+#include "StateMachine.h"
 
 
 #include <FastLED.h>
@@ -18,7 +19,14 @@ uint8_t stripBrightness = 255;
 CRGB leds[NUM_LEDS];
 
 
+EncoderHandler encoder(pins.encoder.CW, pins.encoder.CCW, pins.buttons.animations);
+
+
 void setup() {
+
+  encoder.begin();
+
+
   Serial.begin(9600);
   
   SetPinMode(inputPins, inputPinsSize, INPUT);
@@ -30,39 +38,57 @@ void setup() {
   FastLED.setBrightness(stripBrightness);
 }
 
-void loop() {
-  IO.PollInputs();
-  IO.UpdateOutputLevels();
-  SendPWMToTriangle();
+unsigned long previousMillis = 0;
+unsigned long animationInterval = 1; // Update interval
 
-    /* for(int i = 0; i < 256; i++) {
-        for(int j = 0; j < NUM_LEDS; j++) {
-            stripBrightness = analogRead(pins.pots.brightness) >> 2;
-            FastLED.setBrightness(stripBrightness);
+int i = 0;  // Current hue shift step
+
+void loop() {
+    IO.PollInputs();
+    IO.UpdateOutputLevels();
+    SendPWMToTriangle();
+
+    for(int i = 0; i < NUM_LEDS; i++) {
+      leds[i] = CRGB(IO.inputLevels.pots.red, IO.inputLevels.pots.green, IO.inputLevels.pots.blue);
+    }
+    FastLED.setBrightness(IO.inputLevels.pots.brightness);
+    FastLED.show();
+
+    /* encoder.update();  
+
+    static int lastRotation = 0;
+    int rotation = encoder.getRotation();
+    bool buttonHeld = encoder.isButtonPressed();
+
+    if (buttonHeld && rotation != 0 && rotation != lastRotation) {  
+        animationInterval += (rotation > 0) ? 1 : -1;  // Adjust delay smoothly
+        animationInterval = constrain(animationInterval, 1, 500);
+        
+        Serial.print("New Delay: ");
+        Serial.println(animationInterval);
+        
+        lastRotation = rotation;  // Store last rotation to prevent repeats
+    } else if (rotation == 0) {
+        lastRotation = 0;  // Reset when no rotation detected
+    }
+
+
+    FastLED.setBrightness(IO.inputLevels.pots.brightness);
+
+    unsigned long currentMillis = millis();
+    if (currentMillis - previousMillis >= animationInterval) {
+        previousMillis = currentMillis;
+
+        // Update LEDs one step per loop iteration
+        for (int j = 0; j < NUM_LEDS; j++) {
             leds[j] = CHSV((i + (j * 10)) % 256, 255, 255);
         }
         FastLED.show();
-        delay(20);
+
+        // Increment i, and reset after reaching 256
+        i++;
+        if (i >= 256) {
+            i = 0;
+        }
     } */
-
-
-
-
-
-
-
-  bool switchOn = digitalRead(pins.switches.indicatorLED);
-
-  int redValue = switchOn ? analogRead(pins.pots.red) : 0;
-  int greenValue = switchOn ? analogRead(pins.pots.green) : 0;
-  int blueValue = switchOn ? analogRead(pins.pots.blue) : 0;
-
-  
-
-
-  //globalIndLEDScalingFactor = analogRead(trimPotTriangleBrightnessScalingFactorPin) / 1023.0f;
-
-  //analogWrite(LEDIndicatorRedPin, ((uint8_t)(redValue * redIndLEDScalingFactor * globalIndLEDScalingFactor / 4)));
-  //analogWrite(LEDIndicatorGreenPin, ((uint8_t)(greenValue * greenIndLEDScalingFactor * globalIndLEDScalingFactor / 4)));
-  //analogWrite(LEDIndicatorBluePin, ((uint8_t)(blueValue * blueIndLEDScalingFactor * globalIndLEDScalingFactor / 4)));
 }
