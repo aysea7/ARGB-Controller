@@ -20,7 +20,9 @@ enum SetupSubstate {
 
 enum ButtonState {
     PRESSED,
-    RELEASED
+    HELD,
+    RELEASED,
+    DEPRESSED
 };
 
 class StateMachine
