@@ -16,8 +16,7 @@ public:
             uint8_t brightness;
             uint8_t temperature;
             uint8_t triangleBrightnessScaling;
-            bool stripTypeMode;
-            bool LEDNumberMode;
+            uint8_t settingsMode;
         } pots;
 
         struct Buttons {

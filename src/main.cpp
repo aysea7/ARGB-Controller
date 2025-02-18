@@ -23,10 +23,6 @@ EncoderHandler encoder(pins.encoder.CW, pins.encoder.CCW, pins.buttons.animation
 
 
 void setup() {
-
-  encoder.begin();
-
-
   Serial.begin(9600);
   
   SetPinMode(inputPins, inputPinsSize, INPUT);
@@ -46,31 +42,15 @@ int i = 0;  // Current hue shift step
 void loop() {
     IO.PollInputs();
     IO.UpdateOutputLevels();
+    stateMachine.UpdateStates();
+    
     SendPWMToTriangle();
 
-    for(int i = 0; i < NUM_LEDS; i++) {
+    /* for(int i = 0; i < NUM_LEDS; i++) {
       leds[i] = CRGB(IO.inputLevels.pots.red, IO.inputLevels.pots.green, IO.inputLevels.pots.blue);
     }
     FastLED.setBrightness(IO.inputLevels.pots.brightness);
-    FastLED.show();
-
-    /* encoder.update();  
-
-    static int lastRotation = 0;
-    int rotation = encoder.getRotation();
-    bool buttonHeld = encoder.isButtonPressed();
-
-    if (buttonHeld && rotation != 0 && rotation != lastRotation) {  
-        animationInterval += (rotation > 0) ? 1 : -1;  // Adjust delay smoothly
-        animationInterval = constrain(animationInterval, 1, 500);
-        
-        Serial.print("New Delay: ");
-        Serial.println(animationInterval);
-        
-        lastRotation = rotation;  // Store last rotation to prevent repeats
-    } else if (rotation == 0) {
-        lastRotation = 0;  // Reset when no rotation detected
-    }
+    FastLED.show(); */
 
 
     FastLED.setBrightness(IO.inputLevels.pots.brightness);
@@ -90,5 +70,5 @@ void loop() {
         if (i >= 256) {
             i = 0;
         }
-    } */
+    }
 }

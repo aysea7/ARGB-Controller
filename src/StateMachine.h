@@ -25,6 +25,16 @@ enum ButtonState {
 
 class StateMachine
 {
+    public:
+        SystemState systemState;
+        SetupSubstate setupSubstate;
+        ButtonState encoderButtonState;
+        ButtonState incrButtonState;
+        ButtonState decrButtonState;
+
+        StateMachine();
+
+        void UpdateStates();
 
 };
 

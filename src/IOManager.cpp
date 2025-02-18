@@ -13,16 +13,7 @@ void IOManager::PollInputs()
     this->inputLevels.pots.brightness = AnalogReadTo8Bit(pins.pots.brightness);
     this->inputLevels.pots.temperature = AnalogReadTo8Bit(pins.pots.temperature);
     this->inputLevels.pots.triangleBrightnessScaling = AnalogReadTo8Bit(pins.pots.triangleBrightnessScaling);
-
-    if (analogRead(pins.pots.stripTypeAndLEDNumber) > 511)
-    {
-        this->inputLevels.pots.LEDNumberMode = true;
-        this->inputLevels.pots.stripTypeMode = false;
-    } else {
-        this->inputLevels.pots.LEDNumberMode = false;
-        this->inputLevels.pots.stripTypeMode = true;
-    }
-
+    this->inputLevels.pots.settingsMode = analogRead(pins.pots.stripTypeAndLEDNumber);
     this->inputLevels.buttons.animations = !digitalRead(pins.buttons.animations);
     this->inputLevels.buttons.stripTypeAndIncr = !digitalRead(pins.buttons.stripTypeAndIncr);
     this->inputLevels.buttons.ledNumberAndDecr = !digitalRead(pins.buttons.ledNumberAndDecr);

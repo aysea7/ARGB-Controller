@@ -31,8 +31,8 @@ struct Pins {
 
     struct Switches {
         static constexpr uint8_t indicatorLED = 7;
-        static constexpr uint8_t mode1 = 6;
-        static constexpr uint8_t mode2 = 5;
+        static constexpr uint8_t mode1 = 5;
+        static constexpr uint8_t mode2 = 6;
     } switches;
 
     struct Encoder {
