@@ -1,8 +1,8 @@
 #ifndef STATEMACHINE_H
 #define STATEMACHINE_H
 
+#include "Globals.h"
 #include <Arduino.h>
-
 
 enum SystemState {
     OFF,
@@ -12,34 +12,50 @@ enum SystemState {
     COLOUR_ANIMATED
 };
 
-enum SetupSubstate {
+enum SetupState {
     NO_SETUP,
     STRIP_TYPE,
     LED_COUNT
 };
 
-enum ButtonState {
+enum ButtonSimpleState {
+    PRESS_TRANSIENT,
     PRESSED,
+    RELEASE_TRANSIENT,
+    RELEASED
+};
+
+enum ButtonComplexState {
+    NONE,
     HELD,
-    RELEASED,
-    DEPRESSED
+    DOUBLE_CLICKED,
+    DOUBLE_CLICKED_AND_HELD
+};
+
+enum SwitchState {
+    DISABLED,
+    ENABLED
 };
 
 class StateMachine
 {
+    private:
+        void UpdateSystemState();
+        void UpdateButtonStates();
+
     public:
         SystemState systemState;
-        SetupSubstate setupSubstate;
-        ButtonState encoderButtonState;
-        ButtonState incrButtonState;
-        ButtonState decrButtonState;
-
-        StateMachine();
+        SetupState setupState;
+        ButtonSimpleState encoderButtonState;
+        ButtonComplexState encoderButtonSubstate = NONE;
+        ButtonSimpleState incrButtonState;
+        ButtonComplexState incrButtonSubstate = NONE;
+        ButtonSimpleState decrButtonState;
+        ButtonComplexState decrButtonSubstate = NONE;
+        SwitchState debugState;
+        SwitchState triangleState;
 
         void UpdateStates();
-
 };
-
-extern StateMachine stateMachine;
 
 #endif

@@ -1,9 +1,6 @@
+#include "Globals.h"
 #include <Arduino.h>
-#include "IOManager.h"
 #include "Config.h"
-
-
-IOManager IO;
 
 void IOManager::PollInputs()
 {
@@ -32,12 +29,28 @@ void IOManager::UpdateOutputLevels() {
 
 
 void IOManager::UpdateTriangleLevels() {
-    bool triangleOn = this->inputLevels.switches.indicatorLED;
     float globalBrightnessScaling = max(0.07f, this->inputLevels.pots.triangleBrightnessScaling / 1023.00f);
     
-    this->outputLevels.triangleRed = triangleOn ? (uint8_t)((float)this->inputLevels.pots.red * redIndLEDScalingFactor * globalBrightnessScaling) : 0;
-    this->outputLevels.triangleGreen = triangleOn ? (uint8_t)((float)this->inputLevels.pots.green * greenIndLEDScalingFactor * globalBrightnessScaling) : 0;
-    this->outputLevels.triangleBlue = triangleOn ? (uint8_t)((float)this->inputLevels.pots.blue * blueIndLEDScalingFactor * globalBrightnessScaling) : 0;
+    float red;
+    float green;
+    float blue;
+
+    if (stateMachine.systemState == COLOUR_SOLID)
+    {
+        red = (float)this->inputLevels.pots.red;
+        green = (float)this->inputLevels.pots.green;
+        blue = (float)this->inputLevels.pots.blue;
+    }
+    else if (stateMachine.systemState == COLOUR_ANIMATED)
+    {
+        red = (float)configs.leds[0].r;
+        green = (float)configs.leds[0].g;
+        blue = (float)configs.leds[0].b;
+    }
+    
+    this->outputLevels.triangleRed = stateMachine.triangleState ? (uint8_t)(red * redIndLEDScalingFactor * globalBrightnessScaling) : 0;
+    this->outputLevels.triangleGreen = stateMachine.triangleState ? (uint8_t)(green * greenIndLEDScalingFactor * globalBrightnessScaling) : 0;
+    this->outputLevels.triangleBlue = stateMachine.triangleState ? (uint8_t)(blue * blueIndLEDScalingFactor * globalBrightnessScaling) : 0;
 };
 
 

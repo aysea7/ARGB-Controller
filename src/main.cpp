@@ -1,74 +1,79 @@
+#include "Globals.h"
 #include <Arduino.h>
-#include "EncoderHandler.h"
-#include "ButtonHandler.h"
+#include <FastLED.h>
 #include "Config.h"
 #include "Setup.h"
-#include "IOManager.h"
 #include "LEDTriangle.h"
-#include "StateMachine.h"
 
-
-#include <FastLED.h>
-
-#define NUM_LEDS 26    // Number of LEDs in the strip
+#define NUM_LEDS 26      // Number of LEDs in the strip
 #define LED_TYPE WS2812B // Change to your LED type if different
 #define COLOR_ORDER GRB  // Change if your strip has a different order
 
 uint8_t stripBrightness = 255;
 
-CRGB leds[NUM_LEDS];
+void setup()
+{
+    Serial.begin(9600);
 
+    SetPinMode(inputPins, inputPinsSize, INPUT);
+    SetPinMode(inputPullupPins, inputPullupPinsSize, INPUT_PULLUP);
+    SetPinMode(outputPins, outputPinsSize, OUTPUT);
 
-EncoderHandler encoder(pins.encoder.CW, pins.encoder.CCW, pins.buttons.animations);
-
-
-void setup() {
-  Serial.begin(9600);
-  
-  SetPinMode(inputPins, inputPinsSize, INPUT);
-  SetPinMode(inputPullupPins, inputPullupPinsSize, INPUT_PULLUP);
-  SetPinMode(outputPins, outputPinsSize, OUTPUT);
-
-
-  FastLED.addLeds<LED_TYPE, pins.leds.data, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
-  FastLED.setBrightness(stripBrightness);
+    FastLED.addLeds<LED_TYPE, pins.leds.data, COLOR_ORDER>(configs.leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+    FastLED.setBrightness(stripBrightness);
 }
 
 unsigned long previousMillis = 0;
-unsigned long animationInterval = 1; // Update interval
+unsigned long animationInterval = 25; // Update interval
 
-int i = 0;  // Current hue shift step
+int i = 0; // Current hue shift step
 
-void loop() {
+void loop()
+{
     IO.PollInputs();
-    IO.UpdateOutputLevels();
     stateMachine.UpdateStates();
-    
-    SendPWMToTriangle();
 
-    /* for(int i = 0; i < NUM_LEDS; i++) {
-      leds[i] = CRGB(IO.inputLevels.pots.red, IO.inputLevels.pots.green, IO.inputLevels.pots.blue);
-    }
-    FastLED.setBrightness(IO.inputLevels.pots.brightness);
-    FastLED.show(); */
+    if (stateMachine.systemState == COLOUR_SOLID)
+    {
 
-
-    FastLED.setBrightness(IO.inputLevels.pots.brightness);
-
-    unsigned long currentMillis = millis();
-    if (currentMillis - previousMillis >= animationInterval) {
-        previousMillis = currentMillis;
-
-        // Update LEDs one step per loop iteration
-        for (int j = 0; j < NUM_LEDS; j++) {
-            leds[j] = CHSV((i + (j * 10)) % 256, 255, 255);
+        for (int i = 0; i < NUM_LEDS; i++)
+        {
+            configs.leds[i] = CRGB(IO.inputLevels.pots.red, IO.inputLevels.pots.green, IO.inputLevels.pots.blue);
         }
+        FastLED.setBrightness(IO.inputLevels.pots.brightness);
         FastLED.show();
+    }
+    else if (stateMachine.systemState == COLOUR_ANIMATED)
+    {
 
-        // Increment i, and reset after reaching 256
-        i++;
-        if (i >= 256) {
-            i = 0;
+        FastLED.setBrightness(IO.inputLevels.pots.brightness);
+
+        unsigned long currentMillis = millis();
+        if (currentMillis - previousMillis >= animationInterval)
+        {
+            previousMillis = currentMillis;
+
+            // Update LEDs one step per loop iteration
+            for (int j = 0; j < NUM_LEDS; j++)
+            {
+                configs.leds[j] = CHSV((i + (j * 10)) % 256, 255, 255);
+            }
+            FastLED.show();
+            
+
+            // Increment i, and reset after reaching 256
+            i++;
+            if (i >= 256)
+            {
+                i = 0;
+            }
         }
     }
+    else
+    {
+        FastLED.clear();
+        FastLED.show();
+    }
+    IO.UpdateOutputLevels();
+    SendPWMToTriangle();
 }

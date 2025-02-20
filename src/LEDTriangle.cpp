@@ -1,5 +1,6 @@
+#include "Globals.h"
+#include "LEDTriangle.h"
 #include <Arduino.h>
-#include "IOManager.h"
 
 
 void SendPWMToTriangle()

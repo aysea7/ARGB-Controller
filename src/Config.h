@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <FastLED.h>
+#include "Globals.h"
 
 
 struct Pins {
@@ -82,9 +83,12 @@ static constexpr float blueIndLEDScalingFactor = 0.18f;
 class Configs
 {
 public:
-    uint8_t ledStripCount = 10;
+    uint8_t ledStripCount = 26;
     uint8_t globalIndLEDScalingFactor = 100;
+    CRGB* leds; // Pointer for dynamic allocation
 
+    Configs();
+    ~Configs(); // Destructor to free memory
 
 };
 

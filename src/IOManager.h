@@ -1,6 +1,7 @@
 #ifndef IOMANAGER_H
 #define IOMANAGER_H
 
+#include "Globals.h"
 #include <Arduino.h>
 #include "Config.h"
 
@@ -55,8 +56,5 @@ private:
     uint8_t AnalogReadTo8Bit(uint8_t pin);
 
 };
-
-extern IOManager IO;
-
 
 #endif
